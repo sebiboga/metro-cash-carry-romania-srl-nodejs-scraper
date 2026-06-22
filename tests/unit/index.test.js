@@ -30,17 +30,17 @@ describe('index.js Component Tests', () => {
 
     it('should keep company uppercase', () => {
       const payload = {
-        source: 'epam.com',
-        company: 'epam systems international srl',
-        cif: '33159615',
+        source: 'cariere.metro.ro',
+        company: 'metro cash & carry romania srl',
+        cif: '8119423',
         jobs: [
-          { url: 'https://test.com/1', title: 'Job 1', company: 'epam systems', cif: '33159615' }
+          { url: 'https://test.com/1', title: 'Job 1', company: 'metro', cif: '8119423' }
         ]
       };
 
       const result = index.transformJobsForSOLR(payload);
 
-      expect(result.company).toBe('EPAM SYSTEMS INTERNATIONAL SRL');
+      expect(result.company).toBe('METRO CASH & CARRY ROMANIA SRL');
     });
 
     it('should normalize workmode values', () => {
@@ -70,15 +70,15 @@ describe('index.js Component Tests', () => {
   describe('mapToJobModel', () => {
     it('should map raw job to job model format', () => {
       const rawJob = {
-        url: 'https://careers.epam.com/job/123',
+        url: 'https://cariere.metro.ro/job/test-jid-1',
         title: 'Senior Developer',
-        location: ['Bucharest'],
-        tags: ['Java', 'Spring'],
+        location: ['București'],
+        tags: ['financiar'],
         workmode: 'hybrid'
       };
 
-      const COMPANY_NAME = 'EPAM SYSTEMS INTERNATIONAL SRL';
-      const COMPANY_CIF = '33159615';
+      const COMPANY_NAME = 'METRO CASH & CARRY ROMANIA SRL';
+      const COMPANY_CIF = '8119423';
 
       const result = index.mapToJobModel(rawJob, COMPANY_CIF, COMPANY_NAME);
 
@@ -116,105 +116,63 @@ describe('index.js Component Tests', () => {
     });
   });
 
-  describe('parseApiJobs', () => {
-    it('should parse EPAM API response format', () => {
-      const apiData = {
-        data: {
-          total: 100,
-          jobs: [
-            {
-              uid: '123',
-              name: 'Senior Developer',
-              city: [{ name: 'Bucharest' }],
-              country: [{ name: 'Romania' }],
-              vacancy_type: 'Hybrid',
-              skills: ['Java', 'Spring']
-            }
-          ]
-        }
-      };
+  describe('parseJobsHTML', () => {
+    it('should parse Metro HTML job listings', () => {
+      const html = `<div class="attrax-vacancy-tile" data-jobid="32809">
+        <a class="attrax-vacancy-tile__title" href="/job/accountant-test-bucuresti-jid-32809">Accountant (Fixed Asset) | Maternity Cover</a>
+        <div class="attrax-vacancy-tile__location-freetext attrax-vacancy-tile__item">
+          <p class="attrax-vacancy-tile__item-value">Bulevardul Theodor Pallady, București</p>
+        </div>
+      </div>`;
 
-      const result = index.parseApiJobs(apiData);
+      const result = index.parseJobsHTML(html);
 
-      expect(result.jobs).toHaveLength(1);
-      expect(result.jobs[0].title).toBe('Senior Developer');
-      expect(result.jobs[0].location).toEqual(['Bucharest']);
-      expect(result.jobs[0].workmode).toBe('hybrid');
+      expect(result).toHaveLength(1);
+      expect(result[0].title).toBe('Accountant (Fixed Asset) | Maternity Cover');
+      expect(result[0].location).toEqual(['Bulevardul Theodor Pallady, București']);
+      expect(result[0].url).toBe('https://cariere.metro.ro/job/accountant-test-bucuresti-jid-32809');
     });
 
-    it('should handle empty job list', () => {
-      const apiData = { data: { total: 0, jobs: [] } };
+    it('should skip entries without title', () => {
+      const html = `<div class="attrax-vacancy-tile" data-jobid="1">
+        <a class="attrax-vacancy-tile__title" href="/job/test-jid-1">  </a>
+      </div>`;
 
-      const result = index.parseApiJobs(apiData);
+      const result = index.parseJobsHTML(html);
 
-      expect(result.jobs).toEqual([]);
+      expect(result).toHaveLength(0);
     });
 
-    it('should handle missing data field', () => {
-      const result = index.parseApiJobs({});
-
-      expect(result.jobs).toEqual([]);
+    it('should handle empty HTML', () => {
+      const result = index.parseJobsHTML('<html></html>');
+      expect(result).toEqual([]);
     });
 
-    it('should handle multiple cities', () => {
-      const apiData = {
-        data: {
-          total: 1,
-          jobs: [
-            {
-              uid: '123',
-              name: 'Developer',
-              city: [{ name: 'Bucharest' }, { name: 'Cluj-Napoca' }],
-              country: [{ name: 'Romania' }]
-            }
-          ]
-        }
-      };
+    it('should extract department from CSS class', () => {
+      const html = `<div class="attrax-vacancy-tile sector-ro-financiar" data-jobid="1">
+        <a class="attrax-vacancy-tile__title" href="/job/test-jid-1">Tax Manager</a>
+        <div class="attrax-vacancy-tile__location-freetext attrax-vacancy-tile__item">
+          <p class="attrax-vacancy-tile__item-value">București</p>
+        </div>
+      </div>`;
 
-      const result = index.parseApiJobs(apiData);
+      const result = index.parseJobsHTML(html);
 
-      expect(result.jobs[0].location).toEqual(['Bucharest', 'Cluj-Napoca']);
-    });
-  });
-
-  describe('URL Generation', () => {
-    it('should use seo.url when available', () => {
-      const apiData = {
-        data: {
-          total: 1,
-          jobs: [
-            {
-              uid: 'blt123',
-              name: 'Test Job',
-              seo: { url: '/en/vacancy/test-job-blt123_en' },
-              city: [{ name: 'Bucharest' }]
-            }
-          ]
-        }
-      };
-
-      const result = index.parseApiJobs(apiData);
-
-      expect(result.jobs[0].url).toBe('https://careers.epam.com/en/vacancy/test-job-blt123_en');
+      expect(result).toHaveLength(1);
+      expect(result[0].tags).toEqual(['financiar']);
     });
 
-    it('should fallback to uid-based URL when no seo.url', () => {
-      const apiData = {
-        data: {
-          total: 1,
-          jobs: [
-            {
-              uid: 'blt456',
-              name: 'Test Job',
-              city: [{ name: 'Bucharest' }]
-            }
-          ]
-        }
-      };
+    it('should handle absolute URLs', () => {
+      const html = `<div class="attrax-vacancy-tile" data-jobid="1">
+        <a class="attrax-vacancy-tile__title" href="https://cariere.metro.ro/job/test-jid-1">Test Job</a>
+        <div class="attrax-vacancy-tile__location-freetext attrax-vacancy-tile__item">
+          <p class="attrax-vacancy-tile__item-value">București</p>
+        </div>
+      </div>`;
 
-      const result = index.parseApiJobs(apiData);
+      const result = index.parseJobsHTML(html);
 
-      expect(result.jobs[0].url).toBe('https://careers.epam.com/en/vacancy/blt456_en');
+      expect(result[0].url).toBe('https://cariere.metro.ro/job/test-jid-1');
     });
   });
 });

@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.2] - 2026-06-17
 
 ### Removed
-- Dead export `getCompanyBrand()` from `company.js` (only used by a tautological test that asserted `"EPAM" === "EPAM"`). Brand is now sourced from `config/company.json` via `companyConfig.brand`.
+- Dead export `getCompanyBrand()` from `company.js` (only used by a tautological test that asserted `"METRO" === "METRO"`). Brand is now sourced from `config/company.json` via `companyConfig.brand`.
 
 ### Changed
 - `solr.js`: `getSolrAuth()` now throws on missing `SOLR_AUTH` and is used internally by all 6 SOLR operations. Removed 6 inline duplications of `process.env.SOLR_AUTH` reads + error checks.
@@ -88,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release
-- Job scraping from EPAM Careers Romania API
+- Job scraping from METRO Careers Romania API
 - Company validation via ANAF
 - Solr integration for job storage
 - GitHub Actions workflows for daily scraping and testing
