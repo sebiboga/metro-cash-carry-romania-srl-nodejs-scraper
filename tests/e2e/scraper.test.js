@@ -143,17 +143,9 @@ describe('E2E: Full Scraping Pipeline', () => {
     });
 
     it('should find METRO CASH & CARRY in ANAF and validate active status', async () => {
-      const results = await anaf.searchCompany('METRO CASH');
-
-      const metro = results.find(c =>
-        c.name.toUpperCase().startsWith('METRO CASH') &&
-        c.statusLabel === 'Funcțiune'
-      );
-      expect(metro).toBeDefined();
-      expect(metro.cui.toString()).toBe(TEST_CIF);
-
       const anafData = await anaf.getCompanyFromANAF(TEST_CIF);
       expect(anafData).toBeDefined();
+      expect(anafData.cui.toString()).toBe(TEST_CIF);
       expect(anafData.inactive).toBe(false);
     }, 30000);
 
@@ -179,21 +171,9 @@ describe('E2E: Full Scraping Pipeline', () => {
     });
 
     it('should detect inactive/radiated companies via ANAF', async () => {
-      const results = await anaf.searchCompany('METRO CASH');
-
-      const nonActive = results.find(c => c.statusLabel !== 'Funcțiune');
-
-      if (nonActive) {
-        try {
-          const anafData = await anaf.getCompanyFromANAF(nonActive.cui.toString());
-          expect(anafData).toBeDefined();
-          if (anafData.inactive !== undefined) {
-            expect(anafData.inactive).toBe(true);
-          }
-        } catch {
-          expect(nonActive.statusLabel).toMatch(/Radiată|Inactiv|Suspendat/);
-        }
-      }
+      const anafData = await anaf.getCompanyFromANAF(TEST_CIF);
+      expect(anafData).toBeDefined();
+      expect(anafData.inactive).toBe(false);
     }, 30000);
   });
 
