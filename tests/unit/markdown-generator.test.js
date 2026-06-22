@@ -3,7 +3,7 @@ import { generateJobsMarkdown } from "../../src/markdown-generator.js";
 const baseCompany = {
   id: "8119423",
   company: "METRO CASH & CARRY ROMANIA SRL",
-  brand: .METRO.,
+  brand: 'METRO',
   status: "activ",
   location: ["București"],
   website: ["https://www.metro.ro"],

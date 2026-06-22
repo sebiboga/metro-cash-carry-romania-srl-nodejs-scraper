@@ -91,13 +91,10 @@ function parseJobsHTML(html) {
     const fullUrl = url.startsWith("http") ? url : `https://cariere.metro.ro${url}`;
 
     const tags = [];
-    const departmentEl = $el.find('[class*="sector-"]').first();
-    if (departmentEl.length) {
-      const classes = departmentEl.attr("class") || "";
-      const match = classes.match(/sector-ro-([^\s]+)/);
-      if (match) {
-        tags.push(match[1].replace(/-/g, " "));
-      }
+    const allClasses = ($el.attr("class") || "") + " " + ($el.find('[class*="sector-"]').first().attr("class") || "");
+    const match = allClasses.match(/sector-ro-([^\s]+)/);
+    if (match) {
+      tags.push(match[1].replace(/-/g, " "));
     }
 
     jobs.push({
@@ -129,6 +126,7 @@ function mapToJobModel(rawJob, cif, companyName = COMPANY_NAME) {
     cif: cif,
     location: rawJob.location?.length ? rawJob.location : undefined,
     tags: rawJob.tags?.length ? rawJob.tags : undefined,
+    workmode: rawJob.workmode,
     date: now,
     status: "scraped"
   };

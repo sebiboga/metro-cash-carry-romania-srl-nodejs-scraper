@@ -90,7 +90,7 @@ describe('solr.js', () => {
   describe('queryCompanySOLR', () => {
     it('should return company data', async () => {
       mockFetch.mockResolvedValue(makeSolrResponse(1, [
-        { id: '8119423', company: 'METRO CASH & CARRY ROMANIA SRL', brand: .METRO. }
+        { id: '8119423', company: 'METRO CASH & CARRY ROMANIA SRL', brand: 'METRO' }
       ]));
 
       const result = await solr.queryCompanySOLR('id:8119423');
