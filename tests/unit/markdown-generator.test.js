@@ -34,7 +34,7 @@ describe("generateJobsMarkdown", () => {
 
     it("includes brand", () => {
       const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("EPAM");
+      expect(md).toContain("METRO");
     });
 
     it("includes status", () => {

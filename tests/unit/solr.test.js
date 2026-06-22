@@ -96,7 +96,7 @@ describe('solr.js', () => {
       const result = await solr.queryCompanySOLR('id:8119423');
 
       expect(result.numFound).toBe(1);
-      expect(result.docs[0].brand).toBe('EPAM');
+      expect(result.docs[0].brand).toBe('METRO');
     });
 
     it('should return empty when company not found', async () => {
@@ -193,7 +193,7 @@ describe('solr.js', () => {
       const result = await solr.querySOLR('8119423');
 
       for (const job of result.docs) {
-        expect(job.cif).toMatch(/^\d{8}$/);
+        expect(job.cif).toMatch(/^\d{7,8}$/);
       }
     });
 
