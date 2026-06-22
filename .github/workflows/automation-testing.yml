@@ -36,13 +36,13 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "schedule" ]; then
             echo "Schedule trigger — running LIVE mode..."
-            node --no-deprecation tests/validate-epam-jobs.js --delete
+            node --no-deprecation tests/validate-metro-jobs.js --delete
           elif [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
             echo "Running in DRY RUN mode..."
-            node --no-deprecation tests/validate-epam-jobs.js --dry-run
+            node --no-deprecation tests/validate-metro-jobs.js --dry-run
           else
             echo "Running in LIVE mode (will delete expired jobs)..."
-            node --no-deprecation tests/validate-epam-jobs.js --delete
+            node --no-deprecation tests/validate-metro-jobs.js --delete
           fi
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
@@ -57,6 +57,11 @@ jobs:
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
         run: |
+          if [ -z "$SOLR_AUTH" ]; then
+            echo "SOLR_AUTH not configured — skipping company registration"
+            echo "This is expected for new repos until SOLR_AUTH secret is added"
+            exit 0
+          fi
           # Load company identity from single source of truth
           CIF=$(jq -r '.cif' config/company.json)
           LEGAL_NAME=$(jq -r '.legalName' config/company.json)
@@ -132,7 +137,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           npm run test:unit
-          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Unit Tests — EPAM SYSTEMS INTERNATIONAL SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Unit Tests — EPAM SYSTEMS INTERNATIONAL SRL</h1>|' test-report.html
+          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Unit Tests — METRO CASH & CARRY ROMANIA SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Unit Tests — METRO CASH & CARRY ROMANIA SRL</h1>|' test-report.html
           cp test-report.html docs/test-results/pre-scrape-unit.html || true
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
@@ -147,7 +152,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           npm run test:integration
-          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Integration Tests — EPAM SYSTEMS INTERNATIONAL SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Integration Tests — EPAM SYSTEMS INTERNATIONAL SRL</h1>|' test-report.html
+          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Integration Tests — METRO CASH & CARRY ROMANIA SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Integration Tests — METRO CASH & CARRY ROMANIA SRL</h1>|' test-report.html
           cp test-report.html docs/test-results/pre-scrape-integration.html || true
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
@@ -162,7 +167,7 @@ jobs:
       - name: Run E2E Tests
         run: |
           npm run test:e2e
-          sed -i 's|<title>Test Report</title>|<title>Post-scrape: E2E Tests — EPAM SYSTEMS INTERNATIONAL SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: E2E Tests — EPAM SYSTEMS INTERNATIONAL SRL</h1>|' test-report.html
+          sed -i 's|<title>Test Report</title>|<title>Post-scrape: E2E Tests — METRO CASH & CARRY ROMANIA SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: E2E Tests — METRO CASH & CARRY ROMANIA SRL</h1>|' test-report.html
           cp test-report.html docs/test-results/post-scrape.html || true
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
@@ -177,7 +182,7 @@ jobs:
       - name: Run Consistency Tests
         run: |
           npm run test:consistency
-          sed -i 's|<title>Test Report</title>|<title>Post-scrape: Consistency Tests — EPAM SYSTEMS INTERNATIONAL SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: Consistency Tests — EPAM SYSTEMS INTERNATIONAL SRL</h1>|' test-report.html
+          sed -i 's|<title>Test Report</title>|<title>Post-scrape: Consistency Tests — METRO CASH & CARRY ROMANIA SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: Consistency Tests — METRO CASH & CARRY ROMANIA SRL</h1>|' test-report.html
           cp test-report.html docs/test-results/post-scrape-consistency.html || true
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
