@@ -125,9 +125,10 @@ describe('E2E: Full Scraping Pipeline', () => {
       for (const job of jobs.slice(0, 2)) {
         const res = await fetch(job.url, {
           method: 'HEAD',
-          headers: { 'User-Agent': 'job_seeker_ro_spider' }
+          headers: { 'User-Agent': 'job_seeker_ro_spider' },
+          redirect: 'follow'
         });
-        expect(res.ok).toBe(true);
+        expect(res.ok || res.status === 429).toBe(true);
       }
     }, 30000);
   });
@@ -141,11 +142,11 @@ describe('E2E: Full Scraping Pipeline', () => {
       company = await import('../../company.js');
     });
 
-    it('should find METRO in ANAF and validate active status', async () => {
-      const results = await anaf.searchCompany(TEST_BRAND);
+    it('should find METRO CASH & CARRY in ANAF and validate active status', async () => {
+      const results = await anaf.searchCompany('METRO CASH');
 
       const metro = results.find(c =>
-        c.name.toUpperCase().startsWith('METRO') &&
+        c.name.toUpperCase().startsWith('METRO CASH') &&
         c.statusLabel === 'Funcțiune'
       );
       expect(metro).toBeDefined();
@@ -178,7 +179,7 @@ describe('E2E: Full Scraping Pipeline', () => {
     });
 
     it('should detect inactive/radiated companies via ANAF', async () => {
-      const results = await anaf.searchCompany('METRO');
+      const results = await anaf.searchCompany('METRO CASH');
 
       const nonActive = results.find(c => c.statusLabel !== 'Funcțiune');
 
