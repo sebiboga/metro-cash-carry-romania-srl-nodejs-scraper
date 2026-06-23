@@ -10,11 +10,11 @@
 | Location | B-dul THEODOR PALLADY, 51 N, Bucureşti Sectorul 3, Bucureşti |
 | Website | [https://www.metro.ro](https://www.metro.ro) |
 | Careers | [https://cariere.metro.ro/jobs](https://cariere.metro.ro/jobs) |
-| Last Scraped | 2026-06-22 |
+| Last Scraped | 2026-06-23 |
 
 ## Current Job Listings (13)
 
-_Generated: 2026-06-22T11:44:36.055Z_
+_Generated: 2026-06-23T09:30:21.200Z_
 
 ### Accountant (Fixed Asset) | Maternity Cover
 
